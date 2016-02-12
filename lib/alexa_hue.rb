@@ -4,6 +4,9 @@ require 'numbers_in_words/duck_punch'
 require 'alexa_hue/hue_switch'
 require 'chronic_duration'
 require 'alexa_hue/fix_schedule_syntax'
+require "sinatra/config_file"
+
+config_file './config/config.yml'
 
 LEVELS = {} ; [*1..10].each { |t| LEVELS[t.to_s ] = t.in_words }
 
@@ -11,6 +14,7 @@ module Sinatra
   module Hue
     def self.registered(app)
       app.before do
+        puts settings
         if request.request_method == "POST"
           puts request.body.read
           @data = request.body.read
