@@ -6,6 +6,7 @@ gem 'chronic'
 gem 'sinatra'
 gem 'numbers_in_words'
 gem 'httparty'
+gem 'chronic_duration'
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
