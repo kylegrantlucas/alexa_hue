@@ -9,7 +9,7 @@ LEVELS = {} ; [*1..10].each { |t| LEVELS[t.to_s ] = t.in_words }
 
 module Sinatra
   module Hue
-    before do
+    app.before do
       if request.request_method == "POST"
         @data = request.body.read
         params.merge!(JSON.parse(@data))
