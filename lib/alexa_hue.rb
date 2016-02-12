@@ -9,16 +9,16 @@ LEVELS = {} ; [*1..10].each { |t| LEVELS[t.to_s ] = t.in_words }
 
 module Sinatra
   module Hue
-    app.before do
-      if request.request_method == "POST"
-        @data = request.body.read
-        params.merge!(JSON.parse(@data))
-        @echo_request = AlexaObjects::EchoRequest.new(JSON.parse(@data)) 
-        @application_id = @echo_request.application_id
-      end
-    end
-
     def self.registered(app)
+      app.before do
+        if request.request_method == "POST"
+          @data = request.body.read
+          params.merge!(JSON.parse(@data))
+          @echo_request = AlexaObjects::EchoRequest.new(JSON.parse(@data)) 
+          @application_id = @echo_request.application_id
+        end
+      end
+      
       app.post '/alexa_hue' do
         content_type :json
 
