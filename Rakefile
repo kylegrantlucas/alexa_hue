@@ -17,8 +17,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "alexa_hue"
   gem.homepage = "http://github.com/kylegrantlucas/alexa_hue"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{A sinatra middleware for using alexa to acces phillips hue lights.}
+  gem.description = %Q{A sinatra middleware for using alexa to acces phillips hue lights.}
   gem.email = "kglucas93@gmail.com"
   gem.authors = ["Kyle Lucas"]
   # dependencies defined in Gemfile

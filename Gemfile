@@ -2,7 +2,10 @@ source "http://rubygems.org"
 # Add dependencies required to use your gem here.
 # Example:
 #   gem "activesupport", ">= 2.3.5"
-
+gem 'chronic'
+gem 'sinatra'
+gem 'numbers_in_words'
+gem 'httparty'
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
