@@ -1,18 +1,20 @@
-source "http://rubygems.org"
-# Add dependencies required to use your gem here.
-# Example:
-#   gem "activesupport", ">= 2.3.5"
-gem 'chronic'
+source 'https://rubygems.org'
+
+gemspec
+
+gem 'chronic', '~> 0.10.0'
+gem 'chronic_duration', '~> 0'
+gem 'httparty', '~> 0.13.0'
+gem 'numbers_in_words', '~> 0.2.0'
 gem 'sinatra'
-gem 'numbers_in_words'
-gem 'httparty'
-gem 'chronic_duration'
-# Add dependencies to develop your gem here.
-# Include everything needed to run rake, tests, features, etc.
+gem 'alexa_objects'
+gem 'activesupport'
+
 group :development do
-  gem "shoulda", ">= 0"
-  gem "rdoc", "~> 3.12"
-  gem "bundler", "~> 1.0"
-  gem "jeweler", "~> 2.0.1"
-  gem "simplecov", ">= 0"
+  gem "guard", "2.12.5", require: false
+  gem "guard-rspec", '4.5.0', require: false
+  gem "guard-bundler", require: false
+  gem "guard-rake", require: false
+  gem "terminal-notifier-guard", require: false
+  gem 'guard-yard', require: false
 end

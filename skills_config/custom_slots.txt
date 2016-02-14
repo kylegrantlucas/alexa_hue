@@ -1,0 +1,46 @@
+LIGHTS
+bedroom lights
+fireplace lights
+floor light
+overhead light
+
+ATTRIBUTE
+Saturation
+Brightness
+
+COLOR
+Red
+Blue
+Green
+Yellow
+Pink
+Purple
+Violet
+Turquiose
+Reading
+Relax
+Candle
+Neutral
+Concentrate
+
+LEVEL
+one
+two
+three
+four
+five
+six
+seven
+eight
+nine
+ten
+
+SCENE
+morning
+evening
+dinner
+afternoon
+
+STATE
+on
+off
