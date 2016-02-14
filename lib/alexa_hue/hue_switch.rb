@@ -10,6 +10,7 @@ require 'numbers_in_words'
 require 'numbers_in_words/duck_punch'
 require 'timeout'
 
+module Sinatra
 module Hue
   module_function
 
@@ -519,4 +520,5 @@ module Hue
       ].join("\n")
     end
   end
+end
 end
