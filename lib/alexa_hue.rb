@@ -10,7 +10,7 @@ require 'numbers_in_words/duck_punch'
 require 'alexa_hue/hue_switch'
 require 'chronic_duration'
 require 'alexa_hue/fix_schedule_syntax'
-require "sinatra/config_file"
+
 
 LEVELS = {} ; [*1..10].each { |t| LEVELS[t.to_s ] = t.in_words }
 

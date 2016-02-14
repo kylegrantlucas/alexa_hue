@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'numbers_in_words'
   spec.add_runtime_dependency 'activesupport'
   spec.add_runtime_dependency 'chronic'
+  spec.add_runtime_dependency 'chronic_duration'
   spec.add_runtime_dependency 'sinatra'
 
   spec.add_development_dependency "bundler", "~> 1.6"
