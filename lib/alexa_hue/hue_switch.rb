@@ -10,7 +10,6 @@ require 'numbers_in_words'
 require 'numbers_in_words/duck_punch'
 require 'timeout'
 
-module Sinatra
 module Hue
   module_function
 
@@ -26,24 +25,14 @@ module Hue
   class Switch
     attr_accessor :command, :lights_array, :_group, :body, :schedule_params, :schedule_ids
     def initialize(command = "", _group = 0, &block)
-
       @user = "1234567890"
-        begin
-          @ip = HTTParty.get("https://www.meethue.com/api/nupnp").first["internalipaddress"] rescue nil
-          if @ip.nil?
-            bridge = get_bridge_by_SSDP
-            @ip = bridge.ip
-          end
 
-        rescue Timeout::Error
-          puts "Time Out"
-        rescue NoMethodError
-          puts "Cannot Find Bridge via Hue broker service, trying SSDP..."
-        rescue Errno::ECONNREFUSED
-          puts "Connection refused"
-        rescue SocketError
-          puts "Cannot connect to local network"
-        end
+      begin
+        @ip = HTTParty.get("https://www.meethue.com/api/nupnp").first["internalipaddress"] rescue nil
+        @ip ||= get_bridge_by_SSDP.ip
+      rescue 
+        puts "Cannot connect to bridge."
+      end
 
       authorize_user
       populate_switch
@@ -58,16 +47,12 @@ module Hue
     end
 
     def list_lights
-      light_list = {}
-      HTTParty.get("http://#{@ip}/api/#{@user}/lights").each { |k,v| light_list["#{v['name']}".downcase] = k }
-      light_list
+      HTTParty.get("http://#{@ip}/api/#{@user}/lights").map{|k,v|[k,"#{v['name']}".downcase]}.to_h
     end
 
     def list_groups
-      group_list = {}
-      HTTParty.get("http://#{@ip}/api/#{@user}/groups").each { |k,v| group_list["#{v['name']}".downcase] = k }
-      group_list["all"] = "0"
-      group_list
+      HTTParty.get("http://#{@ip}/api/#{@user}/groups").map{|k,v|[k,"#{v['name']}".downcase]}.to_h.merge("all" => 
+        "0")
     end
 
     def list_scenes
@@ -111,9 +96,7 @@ module Hue
     end
 
     def clear_attributes
-      self.body.delete(:scene)
-      self.body.delete(:ct)
-      self.body.delete(:hue)
+      self.body.delete_if{|k|[:scene,:ct,:hue].include?(k)}
     end
 
     def fade(in_seconds)
@@ -143,19 +126,17 @@ module Hue
     end
 
     def confirm
-      params = {:alert => 'select'}
-      HTTParty.put("http://#{@ip}/api/#{@user}/groups/0/action" , :body => params.to_json)
+      HTTParty.put("http://#{@ip}/api/#{@user}/groups/0/action" , :body => {:alert => 'select'}.to_json)
     end
 
     def save_scene(scene_name)
-      scene_name.gsub!(' ','-')
       self.fade 2 if self.body[:transitiontime] == nil
       if self._group.empty?
         light_group = HTTParty.get("http://#{@ip}/api/#{@user}/groups/0")["lights"]
       else
         light_group = HTTParty.get("http://#{@ip}/api/#{@user}/groups/#{self._group}")["lights"]
       end
-      params = {name: scene_name, lights: light_group, transitiontime: self.body[:transitiontime]}
+      params = {name: scene_name.gsub!(' ','-'), lights: light_group, transitiontime: self.body[:transitiontime]}
       response = HTTParty.put("http://#{@ip}/api/#{@user}/scenes/#{scene_name}", :body => params.to_json)
       confirm if response.first.keys[0] == "success"
     end
@@ -174,7 +155,6 @@ module Hue
       elsif self.body[:on] == false
         # turn off individual lights in the scene
         (HTTParty.get("http://#{@ip}/api/#{@user}/scenes"))[self.body[:scene]]["lights"].each do |l|
-          puts self.body
           HTTParty.put("http://#{@ip}/api/#{@user}/lights/#{l}/state", :body => (self.body).to_json)
         end
       end
@@ -272,7 +252,6 @@ module Hue
     #The rest of the methods allow access to most of the Switch class functionality by supplying a single string
 
     def voice(string)
-      puts string
       self.reset
       self.command << string
 
@@ -400,10 +379,6 @@ module Hue
     end
   end
 
-
-  # The Device and SSDP classes are basically lifted from Sam Soffes' great GitHub repo:
-  # https://github.com/soffes/discover.
-
   class Device
     attr_reader :ip
     attr_reader :port
@@ -520,5 +495,4 @@ module Hue
       ].join("\n")
     end
   end
-end
 end

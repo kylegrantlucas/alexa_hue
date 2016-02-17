@@ -18,7 +18,7 @@ LEVELS = {} ; [*1..10].each { |t| LEVELS[t.to_s ] = t.in_words }
 module Hue
   extend Sinatra::Extension
 
-  helpers do 
+  helpers do
     def control_lights
       if @echo_request.slots.brightness
         LEVELS.keys.reverse_each { |level| @echo_request.slots.brightness.sub!(level, LEVELS[level]) } if @echo_request.slots.schedule.nil? 
@@ -47,7 +47,7 @@ module Hue
       fix_schedule_syntax(@string)        
       @string.sub!("color loop", "colorloop")
       @string.strip!
-      
+
       begin
         switch = Hue::Switch.new
       rescue RuntimeError
