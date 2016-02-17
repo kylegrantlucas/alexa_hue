@@ -5,7 +5,7 @@ require 'alexa_hue/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "alexa_hue"
-  spec.version       = Sinatra::Hue::VERSION
+  spec.version       = Hue::VERSION
   spec.authors       = ["Kyle Lucas"]
   spec.email         = ["kglucas93@gmail.com"]
   spec.summary       = %q{A sinatra middleware for alexa hue actions.}
