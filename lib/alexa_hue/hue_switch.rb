@@ -354,8 +354,7 @@ module Hue
     def authorize_user
       begin
         if HTTParty.get("http://#{@ip}/api/#{@user}/config").include?("whitelist") == false
-          body = {:devicetype => "Hue_Switch", :username=>"1234567890"}
-          create_user = HTTParty.post("http://#{@ip}/api", :body => body.to_json)
+          create_user = HTTParty.post("http://#{@ip}/api", :body => {:devicetype => "Hue_Switch", :username=>"1234567890"}.to_json)
           puts "You need to press the link button on the bridge and run again" if create_user.first.include?("error")
         end
       rescue Errno::ECONNREFUSED
@@ -366,37 +365,19 @@ module Hue
     def populate_switch
       @colors = {red: 65280, pink: 56100, purple: 52180, violet: 47188, blue: 46920, turquoise: 31146, green: 25500, yellow: 12750, orange: 8618}
       @mired_colors = {candle: 500, relax: 467, reading: 346, neutral: 300, concentrate: 231, energize: 136}
-      @scenes = [] ; HTTParty.get("http://#{@ip}/api/#{@user}/scenes").keys.each { |k| @scenes.push(k) }
-      @groups = {} ; HTTParty.get("http://#{@ip}/api/#{@user}/groups").each { |k,v| @groups["#{v['name']}".downcase] = k } ; @groups["all"] = "0"
-      @lights = {} ; HTTParty.get("http://#{@ip}/api/#{@user}/lights").each { |k,v| @lights["#{v['name']}".downcase] = k }
+      @scenes = HTTParty.get("http://#{@ip}/api/#{@user}/scenes").keys
+      @groups = HTTParty.get("http://#{@ip}/api/#{@user}/groups").map{|k,v|[k,"#{v['name']}".downcase]}.to_h.merge("all" => "0")
+      @lights = HTTParty.get("http://#{@ip}/api/#{@user}/lights").map{|k,v|[k,"#{v['name']}".downcase]}.to_h
     end
 
     def get_bridge_by_SSDP
       discovered_devices = Hue.devices
-      bridge = discovered_devices.each do |device|
-          next unless device.get_response.include?("hue Personal")
-      end.first
+      bridge = discovered_devices.each { |device| next unless device.get_response.include?("hue Personal")}.first
     end
   end
 
   class Device
-    attr_reader :ip
-    attr_reader :port
-    attr_reader :description_url
-    attr_reader :server
-    attr_reader :service_type
-    attr_reader :usn
-    attr_reader :url_base
-    attr_reader :name
-    attr_reader :manufacturer
-    attr_reader :manufacturer_url
-    attr_reader :model_name
-    attr_reader :model_number
-    attr_reader :model_description
-    attr_reader :model_url
-    attr_reader :serial_number
-    attr_reader :software_version
-    attr_reader :hardware_version
+    attr_reader :ip, :port, :description_url, :server, :service_type, :usn, :url_base, :name, :manufacturer, :manufacturer_url, :model_name, :model_number, :model_description, :model_url, :serial_number, :software_version, :hardware_version
 
     def initialize(info)
       headers = {}
@@ -434,9 +415,7 @@ module Hue
     # Timeout in 2 seconds
     DEFAULT_TIMEOUT = 2.freeze
 
-    attr_reader :service_type
-    attr_reader :timeout
-    attr_reader :first
+    attr_reader :service_type, :timeout, :first
 
     # @param service_type [String] the identifier of the device you're trying to find
     # @param timeout [Fixnum] timeout in seconds
@@ -453,7 +432,7 @@ module Hue
       listen_for_responses(first)
     end
 
-  private
+    private
 
     def listen_for_responses(first = false)
       @socket.send(search_message, 0, MULTICAST_ADDR, MULTICAST_PORT)
@@ -486,13 +465,7 @@ module Hue
     end
 
     def search_message
-     [
-        'M-SEARCH * HTTP/1.1',
-        "HOST: #{MULTICAST_ADDR}:reservedSSDPport",
-        'MAN: ssdp:discover',
-        "MX: #{timeout}",
-        "ST: #{service_type || DEFAULT_SERVICE_TYPE}"
-      ].join("\n")
+     ['M-SEARCH * HTTP/1.1', "HOST: #{MULTICAST_ADDR}:reservedSSDPport", 'MAN: ssdp:discover', "MX: #{timeout}", "ST: #{service_type || DEFAULT_SERVICE_TYPE}"].join("\n")
     end
   end
 end
