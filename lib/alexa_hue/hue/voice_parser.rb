@@ -1,4 +1,4 @@
-require 'client'
+require 'alexa_hue/hue/client'
 require 'net/http'
 require 'uri'
 require 'socket'
@@ -16,7 +16,7 @@ module Hue
     attr_accessor :client
     
     def initialize(options={})
-      @client = Hue::Client.new
+      @client = Hue::JsClient.new
     end
     
     def voice(string)

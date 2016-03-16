@@ -10,7 +10,6 @@ require 'numbers_in_words/duck_punch'
 require 'alexa_hue/hue/voice_parser'
 require 'alexa_hue/hue/helpers'
 require 'chronic_duration'
-require 'alexa_hue/fix_schedule_syntax'
 
 
 LEVELS = {} ; [*1..10].each { |t| LEVELS[t.to_s ] = t.in_words }

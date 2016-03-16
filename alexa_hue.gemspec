@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'chronic'
   spec.add_runtime_dependency 'chronic_duration'
   spec.add_runtime_dependency 'sinatra'
+  spec.add_runtime_dependency 'takeout'
 
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake"

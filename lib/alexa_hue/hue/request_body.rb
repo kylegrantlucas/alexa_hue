@@ -1,3 +1,4 @@
+require 'json'
 module Hue
   class RequestBody
     attr_accessor :hue, :ct, :bri, :scene, :sat, :transitiontime, :on, :effect, :alert
@@ -15,9 +16,13 @@ module Hue
     end
     
     def to_json(without_scene:false)
+      return self.to_hash(without_scene: without_scene).to_json
+    end
+    
+    def to_hash(without_scene:false)
       hash = {hue: @hue, ct: @ct, bri: @bri, sat: @sat, transitiontime: @transitiontime, on: @on, effect: @effect, alert: alert}
       hash.merge!(scene: @scene) if without_scene
-      return hash.to_json
+      return hash
     end
   end
 end

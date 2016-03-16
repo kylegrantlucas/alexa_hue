@@ -1,6 +1,6 @@
 require 'takeout'
-require 'helpers'
-require 'request_body'
+require 'alexa_hue/hue/helpers'
+require 'alexa_hue/hue/request_body'
 require 'net/http'
 require 'uri'
 require 'socket'
@@ -44,7 +44,7 @@ module Hue
                   }
                 }
       
-      client = Takeout::Client(uri: @bridge_ip, endpoint_prefix: prefix, schemas: schemas)
+      @client = Takeout::Client.new(uri: @bridge_ip, endpoint_prefix: prefix, schemas: schemas, debug: true)
       
       authorize_user
       populate_switch
@@ -56,7 +56,7 @@ module Hue
     end
     
     def confirm
-      @client.put_all_lights(body: {:alert => 'select'}.to_json)
+      @client.put_all_lights(:alert => 'select')
     end
     
     def hue(numeric_value)
@@ -106,38 +106,38 @@ module Hue
 
     def scene(scene_name)
       @body.reset
-      scene_details = @list_scenes[scene_name]
+      scene_details = @scenes[scene_name]
       @lights_array = scene_details["lights"]
       @_group = "0"
       @body.scene = scene_details["id"]
     end
     
     def save_scene(scene_name)
-      @fade 2 if @body.transitiontime == nil
+      fade(2) if @body.transitiontime == nil
       if @_group.empty?
         light_group = @client.get_all_lights.body["lights"]
       else
         light_group = @client.get_group(group: @_group).body["lights"]
       end
       params = {name: scene_name.gsub!(' ','-'), lights: light_group, transitiontime: @body.transitiontime}
-      response = @client.put_scene(scene: scene_name, body: params.to_json).body
+      response = @client.put_scene(scene: scene_name, options: params).body
       confirm if response.first.keys[0] == "success"
     end
 
     def toggle_lights
-      @lights_array.each { |l| @client.put_lights(lights: l, body: @body.to_json) }
+      @lights_array.each { |l| @client.put_lights(lights: l, options: @body.to_hash) }
     end
 
     def toggle_group
-      @client.put_group(group: @_group, body: @body.to_json(without_scene: true))
+      @client.put_group(group: @_group, options: @body.to_hash(without_scene: true))
     end
 
     def toggle_scene
       if @body.on
-        @client.put_group(group: @_group, body: @body.to_json(without_scene: true))
+        @client.put_group(group: @_group, options: @body.to_hash(without_scene: true))
       else
         @client.get_scenes[@body[:scene]]["lights"].each do |l|
-          @client.put_lights(lights: l, body: @body.to_json)
+          @client.put_lights(lights: l, options: @body.to_hash)
         end
       end
     end
@@ -174,7 +174,7 @@ module Hue
         else
           @schedule_params[:command] = {:address=>"/api/#{@user}/groups/#{@_group}/action", :method=>"PUT", :body=>@body}
         end
-        @schedule_ids.push(@client.post_schedules(body: @schedule_params.to_json).body)
+        @schedule_ids.push(@client.post_schedules(options: @schedule_params).body)
         confirm if @schedule_ids.flatten.last.include?("success")
       end
     end
@@ -205,25 +205,6 @@ module Hue
       @body = Hue::RequestBody.new
       @schedule_params = nil
     end
-     
-    def list_lights
-      @client.get_lights.body.map{|k,v|[k,"#{v['name']}".downcase]}.to_h
-    end
-
-    def list_groups
-      @client.get_groups.body.map{|k,v|[k,"#{v['name']}".downcase]}.to_h.merge("all" => "0")
-    end
-
-    def list_scenes
-      scene_list = {}
-      @client.get_scenes.each do |scene|
-        if scene[1]["owner"] != "none"
-          scene_list.merge!({"#{scene[1]["name"].split(' ').first.downcase}" => {"id" => scene[0]}.merge(scene[1])})
-        end
-      end
-      
-      scene_list
-    end
     
     private
         
@@ -231,7 +212,7 @@ module Hue
       begin
         if @client.get_config.body.include?("whitelist") == false
           body = {:devicetype => "Hue_Switch", :username=>"1234567890"}
-          create_user = @client.post_root(body: body.to_json).body
+          create_user = @client.post_root(options: body).body
           puts "You need to press the link button on the bridge and run again" if create_user.first.include?("error")
         end
       rescue Errno::ECONNREFUSED
@@ -242,7 +223,7 @@ module Hue
     def populate_switch
       @colors = {red: 65280, pink: 56100, purple: 52180, violet: 47188, blue: 46920, turquoise: 31146, green: 25500, yellow: 12750, orange: 8618}
       @mired_colors = {candle: 500, relax: 467, reading: 346, neutral: 300, concentrate: 231, energize: 136}
-      @scenes = [] ; @client.get_scenes.keys.body.each { |k| @scenes.push(k) }
+      @scenes = {} ; @client.get_scenes.body.each { |s| @scenes.merge!({"#{s[1]["name"].split(' ').first.downcase}" => {"id" => s[0]}.merge(s[1])}) if s[1]["owner"] != "none"}
       @groups = {} ; @client.get_groups.body.each { |k,v| @groups["#{v['name']}".downcase] = k } ; @groups["all"] = "0"
       @lights = {} ; @client.get_lights.body.each { |k,v| @lights["#{v['name']}".downcase] = k }
     end
