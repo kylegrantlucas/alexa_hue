@@ -66,12 +66,12 @@ module Hue
       scene_list
     end
 
-    def hue (numeric_value)
+    def hue(numeric_value)
       clear_attributes
       self.body[:hue] = numeric_value
     end
 
-    def mired (numeric_value)
+    def mired(numeric_value)
       clear_attributes
       self.body[:ct] = numeric_value
     end
