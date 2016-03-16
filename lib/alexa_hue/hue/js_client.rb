@@ -1,16 +1,18 @@
+require 'alexa_hue/hue/client'
+
 module Hue
   class JsClient < Client
     attr_accessor :client, :user, :bridge_ip, :schedule_ids, :schedule_params, :command, :_group
     
     def initialize(options={})
-      @client = Takeout::Client(uri: 'localhost' port: 3000)
+      @client = Takeout::Client.new(uri: options[:uri], port: options[:port])
       @lights_array, @schedule_ids, @schedule_params, @command, @_group, @body = [], [], "", "0", Hue::RequestBody.new
     
-      @lights, @groups, @scenes = 
+      populate_client
     end
     
     def confirm
-      @client.put_all_lights(:alert => 'select')
+      @client.apply_alert(:alert => 'select')
     end
     
     def save_scene(scene_name)
@@ -53,8 +55,8 @@ module Hue
     end
 
     def on
-      if body.scene
-        @client.get_activate_scene(scene: body.scene[:id])
+      if @body.scene
+        @client.get_activate_scene(scene: @body.scene)
       end
     end
     

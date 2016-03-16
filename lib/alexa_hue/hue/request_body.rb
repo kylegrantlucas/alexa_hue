@@ -1,4 +1,5 @@
 require 'json'
+
 module Hue
   class RequestBody
     attr_accessor :hue, :ct, :bri, :scene, :sat, :transitiontime, :on, :effect, :alert

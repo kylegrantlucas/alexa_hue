@@ -1,17 +1,8 @@
 require 'takeout'
+require 'httparty'
 require 'alexa_hue/hue/helpers'
 require 'alexa_hue/hue/request_body'
-require 'net/http'
-require 'uri'
-require 'socket'
-require 'ipaddr'
-require 'timeout'
-require 'chronic'
-require 'chronic_duration'
-require 'httparty'
-require 'numbers_in_words'
-require 'numbers_in_words/duck_punch'
-require 'timeout'
+
 
 module Hue
   class Client
@@ -19,7 +10,7 @@ module Hue
     attr_accessor :client, :user, :bridge_ip, :scenes, :groups, :lights, :schedule_ids, :schedule_params, :command, :_group
     
     def initialize(options={}, &block)
-      # JUST UNPNP SUPPORT FOR NOW
+      # JUST UPNP SUPPORT FOR NOW
       @bridge_ip = HTTParty.get("https://www.meethue.com/api/nupnp").first["internalipaddress"] rescue nil
       @user = "1234567890"
       @groups, @lights, @scenes = {}, {}, []
@@ -47,7 +38,7 @@ module Hue
       @client = Takeout::Client.new(uri: @bridge_ip, endpoint_prefix: prefix, schemas: schemas, debug: true)
       
       authorize_user
-      populate_switch
+      populate_client
       
       @lights_array, @schedule_ids, @schedule_params, @command, @_group, @body = [], [], "", "0", Hue::RequestBody.new
       
@@ -114,11 +105,7 @@ module Hue
     
     def save_scene(scene_name)
       fade(2) if @body.transitiontime == nil
-      if @_group.empty?
-        light_group = @client.get_all_lights.body["lights"]
-      else
-        light_group = @client.get_group(group: @_group).body["lights"]
-      end
+      light_group = @_group.empty? ? @client.get_all_lights.body["lights"] : @client.get_group(group: @_group).body["lights"]
       params = {name: scene_name.gsub!(' ','-'), lights: light_group, transitiontime: @body.transitiontime}
       response = @client.put_scene(scene: scene_name, options: params).body
       confirm if response.first.keys[0] == "success"
@@ -200,10 +187,7 @@ module Hue
     end
 
     def reset
-      @command = ""
-      @_group = "0"
-      @body = Hue::RequestBody.new
-      @schedule_params = nil
+      @command, @_group, @body, @schedule_params = "", "0", Hue::RequestBody.new, nil
     end
     
     private
@@ -220,7 +204,7 @@ module Hue
       end
     end
     
-    def populate_switch
+    def populate_client
       @colors = {red: 65280, pink: 56100, purple: 52180, violet: 47188, blue: 46920, turquoise: 31146, green: 25500, yellow: 12750, orange: 8618}
       @mired_colors = {candle: 500, relax: 467, reading: 346, neutral: 300, concentrate: 231, energize: 136}
       @scenes = {} ; @client.get_scenes.body.each { |s| @scenes.merge!({"#{s[1]["name"].split(' ').first.downcase}" => {"id" => s[0]}.merge(s[1])}) if s[1]["owner"] != "none"}

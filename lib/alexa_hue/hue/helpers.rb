@@ -1,14 +1,7 @@
-require 'net/http'
-require 'uri'
-require 'socket'
-require 'ipaddr'
-require 'timeout'
 require 'chronic'
 require 'chronic_duration'
-require 'httparty'
 require 'numbers_in_words'
 require 'numbers_in_words/duck_punch'
-require 'timeout'
 
 module Hue
   module Helpers

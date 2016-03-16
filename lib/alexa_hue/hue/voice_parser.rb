@@ -1,22 +1,14 @@
 require 'alexa_hue/hue/client'
-require 'net/http'
-require 'uri'
-require 'socket'
-require 'ipaddr'
-require 'timeout'
-require 'chronic'
-require 'chronic_duration'
-require 'httparty'
-require 'numbers_in_words'
-require 'numbers_in_words/duck_punch'
-require 'timeout'
+require 'alexa_hue/hue/js_client'
+require 'alexa_hue/hue/helpers'
+
 module Hue
   class VoiceParser
     include Hue::Helpers
     attr_accessor :client
     
     def initialize(options={})
-      @client = Hue::JsClient.new
+      @client = options[:js] ? Hue::JsClient.new(options[:js]) : Hue::Client.new
     end
     
     def voice(string)
