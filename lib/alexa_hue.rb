@@ -7,11 +7,12 @@ require 'chronic'
 require 'alexa_hue/version'
 require 'sinatra/extension'
 require 'numbers_in_words/duck_punch'
-require 'alexa_hue/hue_switch'
+require 'alexa_hue/hue/voice_parser'
+require 'alexa_hue/hue/helpers'
 require 'chronic_duration'
-require 'alexa_hue/fix_schedule_syntax'
 
 module Hue
+  include Hue::Helpers
   extend Sinatra::Extension
 
   helpers do
@@ -54,25 +55,25 @@ module Hue
       # TODO: 58-68 seem to both express the same thought from alexa, could be simplified?
       if @echo_request.slots.lights
         if @echo_request.slots.lights.include?('lights')
-          if !(hue_switch.list_groups.keys.join(', ').downcase.include?("#{@echo_request.slots.lights.sub(' lights','')}"))
+          if !(hue_client.list_groups.keys.join(', ').downcase.include?("#{@echo_request.slots.lights.sub(' lights','')}"))
             halt AlexaObjects::Response.new(spoken_response: "I couldn't find a group with the name #{@echo_request.slots.lights}").to_json
           end
         elsif  @echo_request.slots.lights.include?('light')
-          if  !(hue_switch.list_lights.keys.join(', ').downcase.include?("#{@echo_request.slots.lights.sub(' light','')}"))
+          if  !(hue_client.list_lights.keys.join(', ').downcase.include?("#{@echo_request.slots.lights.sub(' light','')}"))
             halt AlexaObjects::Response.new(spoken_response: "I couldn't find a light with the name #{@echo_request.slots.lights}").to_json
           end
         end
       end
 
       #TODO : majorly create context for this
-      hue_switch.voice @string 
+      hue_client.voice @string 
 
       return AlexaObjects::Response.new(spoken_response: "okay").to_json
     end
 
-    def hue_switch
+    def hue_client
       begin
-        @switch = Hue::Switch.new
+        @client = Hue::Switch.new
       rescue RuntimeError
         halt AlexaObjects::Response.new(spoken_response: "Hello. Before using Hue lighting, you'll need to give me access to your Hue bridge. Please press the link button on your bridge and launch the skill again within ten seconds.").to_json
       end
