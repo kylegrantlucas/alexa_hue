@@ -5,6 +5,7 @@ require 'alexa_hue/hue/helpers'
 module Hue
   class VoiceParser
     include Hue::Helpers
+    include Singleton
     attr_accessor :client
     
     def initialize(options={})
