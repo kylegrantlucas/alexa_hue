@@ -130,7 +130,7 @@ module Hue
     end
     
     def toggle_system
-      toggle_lights if @lights_array.any?
+      toggle_lights if @lights_array.any? && @body.scene.nil?
       toggle_group if (!@_group.empty? && @body.scene.nil?)
       toggle_scene if @body.scene
     end
