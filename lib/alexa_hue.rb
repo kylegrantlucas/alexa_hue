@@ -19,7 +19,7 @@ module Hue
     LEVELS = {} ; [*1..10].each { |t| LEVELS[t.to_s ] = t.in_words }
     
     def control_lights
-      [:brightness, :satruation].each do |attribute|
+      [:brightness, :saturation].each do |attribute|
         if @echo_request.slots.send(attribute)
           LEVELS.keys.reverse_each { |level| @echo_request.slots.send(attribute).sub!(level, LEVELS[level]) } if @echo_request.slots.schedule.nil? 
         end
