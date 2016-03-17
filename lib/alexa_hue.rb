@@ -20,6 +20,16 @@ module Hue
   extend Sinatra::Extension
 
   helpers do
+    def switch
+      begin
+        @switch = Hue::VoiceParser.new
+      rescue RuntimeError
+        halt AlexaObjects::Response.new(spoken_response: "Hello. Before using Hue lighting, you'll need to give me access to your Hue bridge. Please press the link button on your bridge and launch the skill again within ten seconds.").to_json
+      end
+      
+      @switch
+    end
+    
     def control_lights
       if @echo_request.slots.brightness
         LEVELS.keys.reverse_each { |level| @echo_request.slots.brightness.sub!(level, LEVELS[level]) } if @echo_request.slots.schedule.nil? 
@@ -49,11 +59,7 @@ module Hue
       @string.sub!("color loop", "colorloop")
       @string.strip!
 
-      begin
-        switch = Hue::Switch.new
-      rescue RuntimeError
-        halt AlexaObjects::Response.new(spoken_response: "Hello. Before using Hue lighting, you'll need to give me access to your Hue bridge. Please press the link button on your bridge and launch the skill again within ten seconds.").to_json
-      end
+      
       
       if @echo_request.slots.lights.nil? && @echo_request.slots.scene.nil? && @echo_request.slots.savescene.nil?
         halt AlexaObjects::Response.new(end_session: false, spoken_response: "Please specify which light or lights you'd like to adjust. I'm ready to control the lights.").to_json
