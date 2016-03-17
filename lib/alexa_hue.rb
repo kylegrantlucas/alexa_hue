@@ -22,7 +22,7 @@ module Hue
   helpers do
     def switch
       begin
-        @switch = Hue::VoiceParser.new
+        @switch ||= Hue::VoiceParser.new
       rescue RuntimeError
         halt AlexaObjects::Response.new(spoken_response: "Hello. Before using Hue lighting, you'll need to give me access to your Hue bridge. Please press the link button on your bridge and launch the skill again within ten seconds.").to_json
       end
