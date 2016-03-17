@@ -16,8 +16,8 @@ module Hue
   extend Sinatra::Extension
 
   helpers do
-    LEVELS = [*1..10].map{|k,v|[k.to_s,t,in_words]}.to_h
-
+    LEVELS = {} ; [*1..10].each { |t| LEVELS[t.to_s ] = t.in_words }
+    
     def control_lights
       [:brightness, :satruation].each do |attribute|
         if @echo_request.slots.send(attribute)
