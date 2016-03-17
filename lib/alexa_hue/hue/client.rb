@@ -35,7 +35,7 @@ module Hue
                   }
                 }
       
-      @client = Takeout::Client.new(uri: @bridge_ip, endpoint_prefix: prefix, schemas: schemas, debug: true)
+      @client = Takeout::Client.new(uri: @bridge_ip, endpoint_prefix: prefix, schemas: schemas, debug: true, headers: { "Expect" => "100-continue" })
       
       authorize_user
       populate_client
@@ -47,7 +47,7 @@ module Hue
     end
     
     def confirm
-      @client.put_all_lights(:alert => 'select')
+      @client.put_all_lights(alert: 'select')
     end
     
     def hue(numeric_value)
@@ -112,19 +112,19 @@ module Hue
     end
 
     def toggle_lights
-      @lights_array.each { |l| @client.put_lights(lights: l, options: @body.to_hash) }
+      @lights_array.each { |l| @client.put_lights({lights: l}.merge(@body.to_hash)) }
     end
 
     def toggle_group
-      @client.put_group(group: @_group, options: @body.to_hash(without_scene: true))
+      @client.put_group({group: @_group}.merge(@body.to_hash(without_scene: true)))
     end
 
     def toggle_scene
       if @body.on
-        @client.put_group(group: @_group, options: @body.to_hash(without_scene: true))
+        @client.put_group({group: @_group}.merge(@body.to_hash(without_scene: true)))
       else
         @client.get_scenes[@body[:scene]]["lights"].each do |l|
-          @client.put_lights(lights: l, options: @body.to_hash)
+          @client.put_lights({lights: l}.merge(@body.to_hash))
         end
       end
     end
@@ -161,7 +161,7 @@ module Hue
         else
           @schedule_params[:command] = {:address=>"/api/#{@user}/groups/#{@_group}/action", :method=>"PUT", :body=>@body}
         end
-        @schedule_ids.push(@client.post_schedules(options: @schedule_params).body)
+        @schedule_ids.push(@client.post_schedules(@schedule_params).body)
         confirm if @schedule_ids.flatten.last.include?("success")
       end
     end
@@ -196,7 +196,7 @@ module Hue
       begin
         if @client.get_config.body.include?("whitelist") == false
           body = {:devicetype => "Hue_Switch", :username=>"1234567890"}
-          create_user = @client.post_root(options: body).body
+          create_user = @client.post_root(body).body
           puts "You need to press the link button on the bridge and run again" if create_user.first.include?("error")
         end
       rescue Errno::ECONNREFUSED
