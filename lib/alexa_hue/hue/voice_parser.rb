@@ -13,23 +13,21 @@ module Hue
       @client = options[:js] ? Hue::JsClient.new(options[:js]) : Hue::Client.new
     end
     
-    def voice(echo_response)
+    def run(echo_response)
       @client.reset
       
       echo_response.slots.to_h.except(:state).each do |key, value|
         if value
-          if value.split(' ').last == "light"
+          if value.to_s.split(' ').last == "light"
             key = "light"
             value = value[/(.*)\s/,1]
-          elsif value.split(' ').last == "lights"
+          elsif value.to_s.split(' ').last == "lights"
             key = "lights"
-            value = value.split(' ').count == 1 ? "lights" : value[/(.*)\s/,1]
+            value = value.to_s.split(' ').count == 1 ? "lights" : value[/(.*)\s/,1]
           end
           
-          value = value.in_numbers if value.scan(Regexp.union( (1..10).map {|k| k.in_words} ) ).any?
           value = ((value.to_f/10.to_f)*255).to_i if (value.class == Fixnum) && (key.to_s != "fade")
           @client.send(key.to_sym, value)
-          puts "Calling: #{key}(#{value})"
         end
       end
       

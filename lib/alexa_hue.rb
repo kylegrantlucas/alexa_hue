@@ -11,24 +11,20 @@ require 'alexa_hue/hue/voice_parser'
 require 'alexa_hue/hue/helpers'
 require 'chronic_duration'
 
-LEVELS = {} ; [*1..10].each { |t| LEVELS[t.to_s ] = t.in_words }
-
 module Hue
   include Hue::Helpers
   extend Sinatra::Extension
 
   helpers do
-    def switch
+    def voice_parser
       Hue::VoiceParser.instance
     end
     
     def control_lights
       Thread.start do 
-        [:brightness, :saturation].each do |attribute|
-          LEVELS.keys.reverse_each { |level| @echo_request.slots.send(attribute).sub!(level, LEVELS[level]) } if @echo_request.slots.send(attribute) && @echo_request.slots.schedule.nil? 
-        end
+        [:brightness, :saturation].each { |attribute| @echo_request.slots.send("#{attribute}=", @echo_request.slots.send(attribute)&.in_numbers) unless @echo_request.slots.schedule }
 
-        switch.voice @echo_request
+        voice_parser.run @echo_request
       end
 
       if (@echo_request.slots.lights.nil? && @echo_request.slots.scene.nil? && @echo_request.slots.savescene.nil?) || (@echo_request.slots.lights && @echo_request.slots.lights.scan(/light|lights/).empty?)
