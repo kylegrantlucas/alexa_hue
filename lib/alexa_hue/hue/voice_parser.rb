@@ -28,7 +28,6 @@ module Hue
           
           value = ((value.to_f/10.to_f)*255).to_i if (value.class == Fixnum) && (key.to_s != "fade")
           @client.send(key.to_sym, value)
-          puts "Calling: #{key}(#{value})"
         end
       end
       
