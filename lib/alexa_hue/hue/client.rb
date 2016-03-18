@@ -50,15 +50,17 @@ module Hue
       @client.put_all_lights(alert: 'select')
     end
     
-    def hue(numeric_value)
-      @body.reset
-      @body.hue = numeric_value
-    end
+    # Not currently used??
+    
+    # def hue(numeric_value)
+    #   @body.reset
+    #   @body.hue = numeric_value
+    # end
 
-    def mired(numeric_value)
-      @body.reset
-      @body.ct = numeric_value
-    end
+    # def mired(numeric_value)
+    #   @body.reset
+    #   @body.ct = numeric_value
+    # end
 
     def color(color_name)
       @body.reset
@@ -81,7 +83,7 @@ module Hue
       @body.transitiontime = in_seconds * 10
     end
 
-    def light (*args)
+    def light(*args)
       @lights_array = []
       @_group = ""
       @body.clear_scene
@@ -103,7 +105,7 @@ module Hue
       @body.scene = scene_details["id"]
     end
     
-    def save_scene(scene_name)
+    def savescene(scene_name)
       fade(2) if @body.transitiontime == nil
       light_group = @_group.empty? ? @client.get_all_lights.body["lights"] : @client.get_group(group: @_group).body["lights"]
       params = {name: scene_name.gsub!(' ','-'), lights: light_group, transitiontime: @body.transitiontime}
@@ -112,7 +114,7 @@ module Hue
     end
 
     def toggle_lights
-      @lights_array.each { |l| @client.put_lights({lights: l}.merge(@body.to_hash)) }
+      @lights_array.each { |l| @client.put_light({lights: l}.merge(@body.to_hash)) }
     end
 
     def toggle_group
@@ -124,7 +126,7 @@ module Hue
         @client.put_group({group: @_group}.merge(@body.to_hash(without_scene: true)))
       else
         @client.get_scenes[@body[:scene]]["lights"].each do |l|
-          @client.put_lights({lights: l}.merge(@body.to_hash))
+          @client.put_light({lights: l}.merge(@body.to_hash))
         end
       end
     end
@@ -177,6 +179,7 @@ module Hue
     end
 
     def alert(value)
+      value = value.to_sym
       if value == :short
         @body.alert = "select"
       elsif value == :long
