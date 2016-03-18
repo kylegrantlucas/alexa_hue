@@ -35,7 +35,7 @@ module Hue
                   }
                 }
       
-      @client = Takeout::Client.new(uri: @bridge_ip, endpoint_prefix: prefix, schemas: schemas, debug: true, headers: { "Expect" => "100-continue" })
+      @client = Takeout::Client.new(uri: @bridge_ip, endpoint_prefix: prefix, schemas: schemas, headers: { "Expect" => "100-continue" })
       
       authorize_user
       populate_client
