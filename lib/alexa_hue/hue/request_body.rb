@@ -21,7 +21,7 @@ module Hue
     end
     
     def to_hash(without_scene:false)
-      hash = {hue: @hue, ct: @ct, bri: @bri, sat: @sat, transitiontime: @transitiontime, on: @on, effect: @effect, alert: alert}
+      hash = {hue: @hue, ct: @ct, bri: @bri, sat: @sat, transitiontime: @transitiontime, on: @on, effect: @effect, alert: @alert}
       hash.merge!(scene: @scene) if without_scene
       return hash
     end

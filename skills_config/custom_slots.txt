@@ -1,9 +1,3 @@
-LIGHTS
-bedroom lights
-fireplace lights
-floor light
-overhead light
-
 ATTRIBUTE
 Saturation
 Brightness
@@ -34,12 +28,6 @@ seven
 eight
 nine
 ten
-
-SCENE
-morning
-evening
-dinner
-afternoon
 
 STATE
 on
