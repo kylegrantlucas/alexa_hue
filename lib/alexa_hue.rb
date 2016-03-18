@@ -22,7 +22,7 @@ module Hue
     
     def control_lights
       Thread.start do 
-        [:brightness, :saturation].each { |attribute| @echo_request.slots.send("#{attribute}=", @echo_request.slots.send(attribute)&.in_numbers) unless @echo_request.slots.schedule }
+        [:brightness, :saturation].each { |attribute| @echo_request.slots.send("#{attribute}=", @echo_request.slots.send(attribute)&.to_i) unless @echo_request.slots.schedule }
 
         voice_parser.run @echo_request
       end
