@@ -17,14 +17,9 @@ module Hue
     
     def save_scene(scene_name)
       fade(2) if @body.transitiontime == nil
-      if @_group.empty?
-        light_group = @client.get_all_lights.body["lights"]
-      else
-        light_group = @client.get_group(group: @_group).body["lights"]
-      end
+      light_group = @_group.empty? ? @client.get_all_lights.body["lights"] : @client.get_group(group: @_group).body["lights"]
       params = {name: scene_name.gsub!(' ','-'), lights: light_group, transitiontime: @body.transitiontime}
-      response = @client.put_scene(scene: scene_name, options: params).body
-      confirm if response.first.keys[0] == "success"
+      confirm if @client.put_scene(scene: scene_name, options: params).body.first.keys[0] == "success"
     end
     
     def delete_schedules!
@@ -54,10 +49,8 @@ module Hue
       end
     end
 
-    def on
-      if @body.scene
-        @client.get_activate_scene(scene: @body.scene)
-      end
+    def toggle_scene
+      @client.get_activate_scene(scene: @body.scene)
     end
     
     def off

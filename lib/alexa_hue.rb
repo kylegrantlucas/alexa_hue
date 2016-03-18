@@ -28,37 +28,12 @@ module Hue
           LEVELS.keys.reverse_each { |level| @echo_request.slots.send(attribute).sub!(level, LEVELS[level]) } if @echo_request.slots.send(attribute) && @echo_request.slots.schedule.nil? 
         end
 
-        @echo_request.slots.to_h.each do |k,v| 
-          @string ||= ""
-          next unless v
-          if k == :scene || k == :alert
-            @string << "#{v.to_s} #{k.to_s}  "
-          elsif k == :lights || k == :modifier || k == :state
-            @string << "#{v.to_s}  "
-          elsif k == :savescene
-            @string << "save scene as #{v.to_s} "
-          elsif k == :flash
-            @string << "start long alert "
-          else
-            @string << "#{k.to_s} #{v.to_s}  "
-          end
-        end
-        
-        fix_schedule_syntax(@string)        
-        @string.sub!("color loop", "colorloop")
-        @string.strip!
-        switch.voice @string
+        switch.voice @echo_request
       end
-      
-      # if @echo_request.slots.lights.nil? && @echo_request.slots.scene.nil? && @echo_request.slots.savescene.nil?
-      #   halt AlexaObjects::Response.new(end_session: false, spoken_response: "Please specify which light or lights you'd like to adjust. I'm ready to control the lights.").to_json
-      # end
 
-      # if @echo_request.slots.lights
-      #   if @echo_request.slots.lights.scan(/light|lights/).empty?
-      #     halt AlexaObjects::Response.new(end_session: false, spoken_response: "Please specify which light or lights you'd like to adjust. I'm ready to control the lights.").to_json
-      #   end
-      # end
+      if (@echo_request.slots.lights.nil? && @echo_request.slots.scene.nil? && @echo_request.slots.savescene.nil?) || @echo_request.slots.lights&.scan(/light|lights/).empty?
+        halt AlexaObjects::Response.new(end_session: false, spoken_response: "Please specify which light or lights you'd like to adjust. I'm ready to control the lights.").to_json
+      end
 
       # if @echo_request.slots.lights
       #   if @echo_request.slots.lights.include?('lights')
@@ -71,16 +46,6 @@ module Hue
       #     end
       #   end
       # end
-        
-
-      #if  @string.include?('light ')
-      #  if (@string.split(' ') & switch.list_lights.keys.join(', ').downcase.split(', ')).empty?
-      #    r = AlexaObjects::Response.new
-      #    r.end_session = true
-      #    r.spoken_response = "I couldn't find a light with the name #{@echo_request.slots.lights}"
-      #    halt r.without_card.to_json
-      #  end
-      #end
 
       return AlexaObjects::Response.new(spoken_response: "okay").to_json
     end
