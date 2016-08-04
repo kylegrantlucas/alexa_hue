@@ -21,7 +21,8 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'json'
   spec.add_runtime_dependency 'alexa_objects'
-  spec.add_runtime_dependency 'httparty'
+  spec.add_runtime_dependency 'curb'
+  spec.add_runtime_dependency 'oj'
   spec.add_runtime_dependency 'numbers_in_words'
   spec.add_runtime_dependency 'activesupport'
   spec.add_runtime_dependency 'chronic'

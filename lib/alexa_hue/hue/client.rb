@@ -1,5 +1,6 @@
 require 'takeout'
-require 'httparty'
+require 'curb'
+require 'oj'
 require 'alexa_hue/hue/helpers'
 require 'alexa_hue/hue/request_body'
 
@@ -7,11 +8,11 @@ require 'alexa_hue/hue/request_body'
 module Hue
   class Client
     include Hue::Helpers
-    attr_accessor :client, :user, :bridge_ip, :scenes, :groups, :lights, :schedule_ids, :schedule_params, :command, :_group
+    attr_accessor :client, :user, :bridge_ip, :scenes, :groups, :lights, :schedule_ids, :schedule_params, :command, :_group, :body
     
     def initialize(options={}, &block)
       # JUST UPNP SUPPORT FOR NOW
-      @bridge_ip = HTTParty.get("https://www.meethue.com/api/nupnp").first["internalipaddress"] rescue nil
+      @bridge_ip = Oj.load(Curl.get("https://www.meethue.com/api/nupnp")).first["internalipaddress"] rescue nil
       @user = "1234567890"
       @groups, @lights, @scenes = {}, {}, []
       prefix = "/api/#{@user}"
@@ -37,10 +38,12 @@ module Hue
       
       @client = Takeout::Client.new(uri: @bridge_ip, endpoint_prefix: prefix, schemas: schemas, headers: { "Expect" => "100-continue" })
       
+      @lights_array, @schedule_ids, @schedule_params, @command, @_group, @body = [], [], [], "", "0", Hue::RequestBody.new
+
       authorize_user
       populate_client
       
-      @lights_array, @schedule_ids, @schedule_params, @command, @_group, @body = [], [], "", "0", Hue::RequestBody.new
+      
       
       # TODO: Do blocks right
       instance_eval(&block) if block_given?

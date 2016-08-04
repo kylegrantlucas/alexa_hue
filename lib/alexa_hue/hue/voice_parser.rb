@@ -2,6 +2,7 @@ require 'alexa_hue/hue/client'
 require 'alexa_hue/hue/js_client'
 require 'alexa_hue/hue/helpers'
 require 'active_support/core_ext/hash'
+require 'singleton'
 
 module Hue
   class VoiceParser

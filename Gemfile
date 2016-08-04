@@ -4,12 +4,14 @@ gemspec
 
 gem 'chronic', '~> 0.10.0'
 gem 'chronic_duration', '~> 0'
-gem 'httparty', '~> 0.13.0'
+gem 'curb'
+gem 'oj'
 gem 'numbers_in_words', '~> 0.2.0'
 gem 'sinatra'
 gem 'alexa_objects'
 gem 'activesupport'
 gem 'takeout', '~> 1.0.6'
+gem 'json', '1.8.3'
 
 group :development do
   gem "guard", "2.12.5", require: false
