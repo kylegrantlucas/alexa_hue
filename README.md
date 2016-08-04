@@ -1,4 +1,9 @@
 # Alexa Hue
+[![Gem Version](https://badge.fury.io/rb/alexa_hue.svg)](http://badge.fury.io/rb/alexa_hue)
+[![Code Climate](https://codeclimate.com/github/kylegrantlucas/takeout/badges/gpa.svg)](https://codeclimate.com/github/kylegrantlucas/takeout) 
+
+A SingingAssistant middleware for using Alexa commands with Phillips Hue products 💡 
+
 ## Installation
 
 Add this line to your SingingAssistant installation's Gemfile:
